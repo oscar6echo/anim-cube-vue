@@ -1,9 +1,11 @@
 type AnimCube3State = {
-  uid: number;
-  uid_active: Ref<number, number>;
+  uid_active: number;
   n_mouse_down: Ref<number, number>;
   actions: {
     removeListeners: () => void;
+    put_var: (v: string, val: string | number, type: 's' | 'n') => void;
+    get_var: (v: string) => string | number;
+    paint: () => void;
   };
 };
 

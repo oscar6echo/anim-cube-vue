@@ -21,22 +21,34 @@ const active = toRef(() => props.active);
 
 onMounted(() => {
   const html_elt = mycube.value as HTMLElement;
-  const { uid, uid_active, n_mouse_down, actions } = AnimCube3(html_elt, props.paramsAsStr);
+  const handle = AnimCube3(html_elt, props.paramsAsStr);
+  //   const { uid_active, n_mouse_down, actions } = AnimCube3(html_elt, props.paramsAsStr);
 
+  const uid = handle.actions.get_var('uid') as number;
   console.log('MOUNTED', { uid });
 
-  watch(n_mouse_down, () => {
+  // test
+  console.log('test put_var');
+  handle.actions.put_var('bgColor', 'skyblue', 's');
+  handle.actions.paint();
+
+  // test
+  console.log('test get_var');
+  console.log(handle.actions.get_var('uid'));
+
+  watch(handle.n_mouse_down, () => {
     emit('update', uid);
     console.log('EMIT uid:', uid);
   });
 
   watch(active, () => {
     console.log('WATCH active:', active);
-    uid_active.value = active.value;
+    handle.uid_active = active.value;
+    // uid_active.value = active.value;
   });
 
   onUnmounted(() => {
-    actions.removeListeners();
+    handle.actions.removeListeners();
   });
 });
 </script>

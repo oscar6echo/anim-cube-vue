@@ -10,7 +10,12 @@ import { ref } from 'vue';
 function AnimCube3(HTML_element, params) {
   // CUSTOM
   const uid = Math.floor(Math.random() * 1_000_000);
-  const state = { uid, n_mouse_down: ref(0), uid_active: ref(0), actions: { removeListeners } };
+  const handle = {
+    n_mouse_down: ref(0),
+    uid_active: 0,
+    // uid_active: ref(0),
+    actions: { removeListeners, put_var, get_var, paint },
+  };
 
   // external configuration
   var config = [];
@@ -251,7 +256,8 @@ function AnimCube3(HTML_element, params) {
     param = getParameter('colors');
     if (param != null) {
       for (var i = 0, j = 0; i < 10 && j < param.length; i++, j += 6) {
-        var s = param.substr(j, 6);
+        var s = param.substring(j, j + 6);
+        // var s = param.substr(j, 6);
         if (s.length == 6 && validateColor(s)) colors[i] = '#' + s;
       }
     }
@@ -1990,8 +1996,10 @@ function AnimCube3(HTML_element, params) {
     var s2 = turnTextFunc(move[curMove], pos);
     var s3 = moveTextFunc(move[curMove], pos + 1, move[curMove].length);
     if (moveTextSpace) {
-      if (s2 == '') s1 = s1.substr(0, s1.length - 1);
-      if (s3 != '') s3 = ' ' + s3.substr(0, s3.length - 1);
+      if (s2 == '') s1 = s1.substring(0, s1.length - 1);
+      //   if (s2 == '') s1 = s1.substr(0, s1.length - 1);
+      if (s3 != '') s3 = ' ' + s3.substring(0, s3.length - 1);
+      //   if (s3 != '') s3 = ' ' + s3.substr(0, s3.length - 1);
     }
     var w1 = g.measureText(s1).width;
     var w2 = g.measureText(s2).width;
@@ -2692,8 +2700,8 @@ function AnimCube3(HTML_element, params) {
     e.preventDefault();
     // CUSTOM
     // activeId = parNode.id;
-    state.n_mouse_down.value += 1;
-    console.log(state);
+    handle.n_mouse_down.value += 1;
+    console.log(handle);
     // END CUSTOM
     mouseIsDown = true;
     showContextMenu = false;
@@ -3037,28 +3045,44 @@ function AnimCube3(HTML_element, params) {
     curMove = 0;
     originalAngle = 0;
     onModuleLoad();
-    if (parNode.id != null) init_direct_access(parNode.id);
+    // CUSTOM
+    // if (parNode.id != null) init_direct_access(parNode.id);
   }
 
-  function init_direct_access(id) {
-    for (var s in window)
-      if (s.substr(0, 5) == 'acjs_') {
-        var g = eval(s); // global
-        var l = s.substr(5); // local
-        if (Array.isArray(g)) {
-          if (exists(l)) g[id] = eval(l);
-          else console.log(l + ' does not exist in animcube');
-        } else console.log(s + ' is not an array');
-      }
-  }
+  // CUSTOM
+  //   function init_direct_access(id) {
+  //     for (var s in window)
+  //       if (s.substring(0, 5) == 'acjs_') {
+  //         var g = eval(s); // global
+  //         var l = s.substring(5); // local
+  //         if (Array.isArray(g)) {
+  //           if (exists(l)) g[id] = eval(l);
+  //           else console.log(l + ' does not exist in animcube');
+  //         } else console.log(s + ' is not an array');
+  //       }
+  //   }
+  // END CUSTOM
+
   function get_var(v) {
-    if (exists(v)) return eval(v);
-    else console.log(v + ' does not exist in animcube');
+    console.log('get_var', v);
+    if (exists(v)) {
+      console.log('get_var', v);
+      return eval(v);
+    } else console.log(v + ' does not exist in animcube');
   }
   function put_var(v, val, type) {
+    // console.log('put_var', { v, val, type });
     if (exists(v)) {
-      if (type == 's') eval(v + "='" + val + "'");
-      else if (type == 'n') eval(v + '=' + Number(val));
+      //   console.log('exists');
+      if (type == 's') {
+        // console.log('type=s');
+        const op = v + "='" + val + "'";
+        console.log('put_var', op);
+        eval(op);
+      } else if (type == 'n') {
+        // console.log('type=n');
+        eval(v + '=' + Number(val));
+      }
     }
   }
   function exists(s) {
@@ -3081,7 +3105,8 @@ function AnimCube3(HTML_element, params) {
     // CUSTOM
     // if (parNode.id != activeId) return;
     // if (!activeElt) return;
-    if (state.uid !== state.uid_active.value) return;
+    if (uid !== handle.uid_active) return;
+    // if (uid !== handle.uid_active.value) return;
     // END CUSTOM
     pressedKeys[event.key] = true;
     let arrows = ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'];
@@ -3103,7 +3128,7 @@ function AnimCube3(HTML_element, params) {
   });
 
   // CUSTOM
-  return state;
+  return handle;
 }
 
 export default AnimCube3;
