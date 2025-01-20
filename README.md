@@ -1,6 +1,6 @@
-# spa-starter-vite-vue
+# AnimCubeJs wrapped in Vue
 
-This template should help get you started developing with Vue 3 in Vite.
+Attempt to wrap [AnimCubeJS](https://github.com/cubing/AnimCubeJS) lib in a vue compolent, as discussed in this [issue](https://github.com/cubing/AnimCubeJS/issues/47).  
 
 ## Recommended IDE Setup
 
