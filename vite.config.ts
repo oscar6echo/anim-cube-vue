@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
   console.log({ mode, isDev });
 
   return {
-    base: isDev ? '/dev/' : '/pages/oscar6echo/anim-cube-vue/',
+    base: isDev ? '/dev/' : '/anim-cube-vue/',
     plugins: [vue(), vueDevTools()],
     resolve: {
       alias: {
