@@ -19,18 +19,21 @@ const emit = defineEmits<{
 
 const active = toRef(() => props.active);
 
+const rnd_bool = () => Math.random() > 0.66;
+
 onMounted(() => {
   const html_elt = mycube.value as HTMLElement;
   const handle = AnimCube3(html_elt, props.paramsAsStr);
-  //   const { uid_active, n_mouse_down, actions } = AnimCube3(html_elt, props.paramsAsStr);
 
   const uid = handle.actions.get_var('uid') as number;
   console.log('MOUNTED', { uid });
 
   // test
-  console.log('test put_var');
-  handle.actions.put_var('bgColor', 'skyblue', 's');
-  handle.actions.paint();
+  if (rnd_bool()) {
+    console.log('test put_var');
+    handle.actions.put_var('bgColor', 'skyblue', 's');
+    handle.actions.paint();
+  }
 
   // test
   console.log('test get_var');
@@ -44,7 +47,6 @@ onMounted(() => {
   watch(active, () => {
     console.log('WATCH active:', active);
     handle.uid_active = active.value;
-    // uid_active.value = active.value;
   });
 
   onUnmounted(() => {

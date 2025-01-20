@@ -35,6 +35,8 @@ function AnimCube3(HTML_element, params) {
   var scube = [];
   var initialCube = [];
   var initialSCube = [];
+  var mcube = [];
+  var initialMCube = [];
   // normal vectors
   var faceNormals = [
     [0.0, -1.0, 0.0], // U
@@ -302,10 +304,18 @@ function AnimCube3(HTML_element, params) {
           borderWidth = borderWidth * 10 + parseInt(param[i]);
       if (borderWidth >= 0 && borderWidth <= 20) setBorderWidth(borderWidth / 100);
     }
+
     // clean the supercube
     if (superCube) {
       for (var i = 0; i < 6; i++) for (var j = 0; j < 9; j++) scube[i][j] = 0;
     }
+
+    for (var i = 0; i < 6; i++) {
+      for (var j = 0; j < 9; j++) {
+        mcube[i][j] = 0;
+      }
+    }
+
     var initialPosition = 'lluu';
     // setup color configuration of the solved cube
     param = getParameter('colorscheme');
@@ -372,6 +382,16 @@ function AnimCube3(HTML_element, params) {
                 break;
               }
             }
+          }
+        }
+      }
+
+      // setup marker facelets
+      param = getParameter('markers');
+      if (param != null && param.length == 54) {
+        for (var i = 0; i < 6; i++) {
+          for (var j = 0; j < 9; j++) {
+            mcube[i][j] = parseInt(param[i * 9 + j]);
           }
         }
       }
@@ -628,6 +648,7 @@ function AnimCube3(HTML_element, params) {
       for (var j = 0; j < 9; j++) {
         initialCube[i][j] = cube[i][j];
         initialSCube[i][j] = scube[i][j];
+        initialMCube[i][j] = mcube[i][j];
       }
     if (initialMove.length > 0) doMove(cube, initialMove[0], 0, initialMove[0].length, false);
     if (initialReversedMove.length > 0)
@@ -1080,6 +1101,7 @@ function AnimCube3(HTML_element, params) {
       for (var j = 0; j < 9; j++) {
         cube[i][j] = initialCube[i][j];
         scube[i][j] = initialSCube[i][j];
+        mcube[i][j] = initialMCube[i][j];
       }
     if (initialMove.length > 0 && typeof initialMove[curMove] != 'undefined')
       doMove(cube, initialMove[curMove], 0, initialMove[curMove].length, false);
@@ -1255,6 +1277,7 @@ function AnimCube3(HTML_element, params) {
 
   function twistLayer(cube, layer, num, middle) {
     twistLayer2(cube, layer, num, middle);
+    twistLayer2(mcube, layer, num, middle);
     if (superCube == true && num > 0 && num < 4) {
       twistLayer2(scube, layer, num, middle);
       twistSuperLayer(layer, num, middle);
@@ -1806,8 +1829,10 @@ function AnimCube3(HTML_element, params) {
                     scube[i][p * 3 + q],
                     colors[cube[i][p * 3 + q]],
                   );
+                  drawMarker(graphics, fillX, fillY, mcube[i][p * 3 + q]);
                 } else {
                   fillPolygon(graphics, fillX, fillY, colors[cube[i][p * 3 + q]]);
+                  drawMarker(graphics, fillX, fillY, mcube[i][p * 3 + q]);
                   if (hintBorder)
                     drawPolygon(graphics, fillX, fillY, darker(colors[cube[i][p * 3 + q]]));
                   else drawPolygon(graphics, fillX, fillY, colors[cube[i][p * 3 + q]]);
@@ -1881,6 +1906,7 @@ function AnimCube3(HTML_element, params) {
               } else {
                 drawPolygon(graphics, fillX, fillY, colors[cube[i][p * 3 + q]]);
                 fillPolygon(graphics, fillX, fillY, colors[cube[i][p * 3 + q]]);
+                drawMarker(graphics, fillX, fillY, mcube[i][p * 3 + q]);
               }
             }
           }
@@ -2344,6 +2370,62 @@ function AnimCube3(HTML_element, params) {
     [1, 2, 3, 0],
   ];
 
+  function drawMarker(g, xx, yy, m) {
+    var x = [];
+    var y = [];
+    // scale down so there is a margin around the X
+    for (var i = 0; i < 4; i++) {
+      x[i] = Math.floor(xx[i] + (xx[superRotate[2][i]] - xx[i]) * 0.2);
+      y[i] = Math.floor(yy[i] + (yy[superRotate[2][i]] - yy[i]) * 0.2);
+    }
+    g.lineWidth = 2 * dpr;
+    g.strokeStyle = 'black';
+
+    if (m === 1) {
+      // an "X"
+      g.beginPath();
+      g.moveTo(x[0], y[0]);
+      g.lineTo(x[2], y[2]);
+      g.closePath();
+      g.stroke();
+      g.beginPath();
+      g.moveTo(x[1], y[1]);
+      g.lineTo(x[3], y[3]);
+      g.closePath();
+      g.stroke();
+    } else if (m === 2) {
+      // a square "□"
+      g.beginPath();
+      g.moveTo(x[0], y[0]);
+      g.lineTo(x[1], y[1]);
+      g.lineTo(x[2], y[2]);
+      g.lineTo(x[3], y[3]);
+      g.closePath();
+      g.stroke();
+    } else if (m === 3) {
+      // a "+"
+      g.beginPath();
+      g.moveTo((x[0] + x[1]) / 2, (y[0] + y[1]) / 2);
+      g.lineTo((x[2] + x[3]) / 2, (y[2] + y[3]) / 2);
+      g.closePath();
+      g.stroke();
+      g.beginPath();
+      g.moveTo((x[0] + x[3]) / 2, (y[0] + y[3]) / 2);
+      g.lineTo((x[1] + x[2]) / 2, (y[1] + y[2]) / 2);
+      g.closePath();
+      g.stroke();
+    } else if (m === 4) {
+      // a 45°-rotated square "◇"
+      g.beginPath();
+      g.moveTo((x[0] + x[1]) / 2, (y[0] + y[1]) / 2);
+      g.lineTo((x[1] + x[2]) / 2, (y[1] + y[2]) / 2);
+      g.lineTo((x[2] + x[3]) / 2, (y[2] + y[3]) / 2);
+      g.lineTo((x[3] + x[0]) / 2, (y[3] + y[0]) / 2);
+      g.closePath();
+      g.stroke();
+    }
+  }
+
   function drawSuperArrow(g, xx, yy, face, superTwist, color) {
     var x = [];
     var y = [];
@@ -2617,6 +2699,7 @@ function AnimCube3(HTML_element, params) {
       for (var j = 0; j < 9; j++) {
         cube[i][j] = initialCube[i][j];
         scube[i][j] = initialSCube[i][j];
+        mcube[i][j] = initialMCube[i][j];
       }
     if (initialMove.length > 0 && typeof initialMove[curMove] != 'undefined')
       doMove(cube, initialMove[curMove], 0, initialMove[curMove].length, false);
@@ -2734,6 +2817,17 @@ function AnimCube3(HTML_element, params) {
     }
   }
 
+  function buildSymmetricPosition(position) {
+    const nb_u = position.split('').filter((e) => e === 'u').length;
+    const nb_u_sym = 24 - nb_u;
+    const pos_new = position
+      .split('')
+      .filter((e) => e !== 'u')
+      .concat(Array(nb_u_sym).fill('u'))
+      .join('');
+    return pos_new;
+  }
+
   function button() {
     pushed = true;
     if (buttonPressed == 3) {
@@ -2744,14 +2838,20 @@ function AnimCube3(HTML_element, params) {
         // mirrored = !mirrored;
 
         var param = getParameter('position');
-        console.log(param);
+        const paramSym = buildSymmetricPosition(param);
+        console.log({ param, paramSym });
+
         mirror2 = !mirror2;
         console.log({ mirror2 });
 
-        const paramSlightRight = 'll' + 'u'.repeat(2);
-        const paramSlightLeft = 'll' + 'u'.repeat(24 - 2);
-        const paramNew = mirror2 ? paramSlightLeft : paramSlightRight;
-        console.log(paramNew);
+        // const paramSlightRight = 'll' + 'u'.repeat(2);
+        // const paramSlightLeft = 'll' + 'u'.repeat(24 - 2);
+        // const paramNew = mirror2 ? paramSlightLeft : paramSlightRight;
+
+        const paramNew = mirror2 ? paramSym : param;
+
+        console.log({ paramNew });
+
         eye = [0.0, 0.0, -1.0];
         eyeX = [1.0, 0.0, 0.0]; // (sideways)
         eyeY = []; // (vertical)
@@ -3037,6 +3137,8 @@ function AnimCube3(HTML_element, params) {
       scube[i] = [];
       initialCube[i] = [];
       initialSCube[i] = [];
+      mcube[i] = [];
+      initialMCube[i] = [];
     }
     for (var i = 0; i < 18; i++) {
       dragCornersX[i] = [];

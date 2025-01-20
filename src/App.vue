@@ -43,6 +43,9 @@ const _params_2 = [
 const params_as_str_2 = _params_2.map((e) => `${e[0]}=${e[1]}`).join('&');
 const params_2 = ref(params_as_str_2);
 
+const params_3 =
+  'markers=012340123401234012340123401234012340123401234012340123&colorscheme=wygbor&scale=7&hint=15&buttonheight=20&hintvert=4.5&position=lluuu&align=27';
+
 const setActive = (uid_active: number) => {
   active_cube.value = uid_active;
 };
@@ -52,10 +55,13 @@ const setActive = (uid_active: number) => {
   <h4>AnimCubeJS in Vue</h4>
 
   <AnimCube :params-as-str="params_1" :active="active_cube" @update="setActive"></AnimCube>
-
   <br />
 
   <AnimCube :params-as-str="params_2" :active="active_cube" @update="setActive"></AnimCube>
+  <br />
+
+  <AnimCube :params-as-str="params_3" :active="active_cube" @update="setActive"></AnimCube>
+  <br />
 </template>
 
 <style scoped></style>
