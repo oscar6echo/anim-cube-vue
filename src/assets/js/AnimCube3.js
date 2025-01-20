@@ -2,6 +2,7 @@
  * @author Josef Jelinek
  * @version 3.5b
  * Conversion to JavaScript by Michael Feather
+ * Some WIP changes by oscar6echo
  */
 'use strict';
 
